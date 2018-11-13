@@ -23,7 +23,7 @@ class Car(models.Model):
     )  # Up to $99.999,99
 
     def __str__(self):
-        return f"({self.id}) Auto de {self.owner.username}"
+        return f"Auto de {self.owner.username.capitalize()}"
 
 
 class Trip(models.Model):

@@ -5,7 +5,14 @@ from django.http import HttpResponse
 
 from trips.models import Car, Trip
 
-admin.site.register(Car)
+
+
+
+class CarAdmin(admin.ModelAdmin):
+    list_display = ('owner', 'description', 'price_per_trip')
+
+
+admin.site.register(Car, CarAdmin)
 
 
 def compute_payments(queryset):
@@ -42,9 +49,9 @@ def compute_payments(queryset):
 class TripAdmin(admin.ModelAdmin):
     date_hierarchy = "date"
     readonly_fields = ("price_per_passenger",)
-    list_display = ('__str__', 'price_per_passenger', 'people_names')
+    list_display = ('date', 'way', 'car', 'price_per_passenger', 'people_names', 'notes')
     list_filter = ('car', 'way')
-    # fields = ['pub_date', 'question_text']
+    ordering = ('-date', 'way')
     actions = ('pay', )
 
     def pay(self, request, queryset):
