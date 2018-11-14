@@ -1,5 +1,8 @@
 from collections import defaultdict
 from decimal import Decimal
+
+from django.contrib.auth.models import Group, User
+from django.contrib.auth.admin import GroupAdmin, UserAdmin
 from django.contrib import admin
 from django.contrib.admin import AdminSite
 
@@ -108,3 +111,8 @@ class TripAdmin(admin.ModelAdmin):
 
 
 admin_site.register(Trip, TripAdmin)
+
+# This is the default Django Contrib Admin user / group object
+# Add this if you need to edit the users / groups in your custom admin
+admin_site.register(Group, GroupAdmin)
+admin_site.register(User, UserAdmin)
