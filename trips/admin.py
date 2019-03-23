@@ -44,7 +44,7 @@ def compute_payments(request, queryset):
             other = from_index[i]
             if ammount == 0 or (person, other) in visited or (other, person) in visited:
                 continue
-            action, from_to = ammount <= 0 and ("pays", "to") or ("collects", "from")
+            action, from_to = ammount <= 0 and ("paga", "a") or ("cobra", "de")
             report.append(ReportLine(person, action, from_to, round(abs(ammount), 2), other))
             visited.append((person, other))
 
