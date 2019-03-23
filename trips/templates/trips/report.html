@@ -1,0 +1,73 @@
+
+<!DOCTYPE html>
+
+<html lang="en-us" >
+<head>
+    <title>Reporte | Carpool administration</title>
+    <link rel="stylesheet" type="text/css" href="/static/admin/css/base.css">
+    <link rel="stylesheet" type="text/css" href="/static/admin/css/changelists.css">
+    <meta name="viewport" content="user-scalable=no, width=device-width, initial-scale=1.0, maximum-scale=1.0">
+    <link rel="stylesheet" type="text/css" href="/static/admin/css/responsive.css">
+    <meta name="robots" content="NONE,NOARCHIVE">
+</head>
+
+
+<body class=" app-trips model-trip change-list"
+  data-admin-utc-offset="0">
+
+<!-- Container -->
+<div id="container">
+
+
+    <!-- Header -->
+    <div id="header">
+        <div id="branding">
+            <h1 id="site-name"><a href="/admin/">Los pibe&#39; del Norte - Carpooling</a></h1>
+        </div>
+    </div>
+    <!-- END Header -->
+
+<div class="breadcrumbs">
+<a href="/admin/">Home</a>
+&rsaquo; <a href="/admin/trips/">Trips</a>
+&rsaquo; Trips
+</div>
+
+
+    <!-- Content -->
+    <div id="content" class="flex">
+
+        <h1>Reporte</h1>
+
+        <div id="content-main">
+
+            <ul>
+            {% for item in report %}
+                <li>
+                    <strong>{{ item.person }}</strong> {{ item.action }} {{ item.from_to }}
+                        <strong>{{ item.other }}</strong>: <b>${{ item.ammount }}</b>
+                </li>
+            {% empty %}
+                <li>Estamos hechos parece...</li>
+            {% endfor %}
+            </ul>
+
+        <br class="clear">
+
+        <h1>Detalle completo</h1>
+        <small>(para checkear)</small>
+        <ul>
+            {% for data in details %}
+                <li>{{ data }}</li>
+            {% endfor %}
+
+        </ul>
+    </div>
+    <!-- END Content -->
+
+    <div id="footer"></div>
+</div>
+<!-- END Container -->
+
+</body>
+</html>
