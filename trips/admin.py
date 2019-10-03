@@ -48,7 +48,18 @@ def compute_payments(request, queryset):
             report.append(ReportLine(person, action, from_to, round(abs(ammount), 2), other))
             visited.append((person, other))
 
-    return TemplateResponse(request, 'trips/report.html', {"report": report, "details": details})
+    ordered = queryset.order_by("date")
+
+    return TemplateResponse(
+        request,
+        'trips/report.html',
+        {
+            "report": report,
+            "details": details,
+            "date_from": ordered.first().date,
+            "date_to": ordered.last().date,
+        }
+    )
 
 
 class TripAdmin(admin.ModelAdmin):
