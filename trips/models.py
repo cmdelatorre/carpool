@@ -60,9 +60,3 @@ class Trip(models.Model):
     def people_names(self):
         """CSV string with the passengers and driver's names"""
         return ', '.join({p.first_name for p in self.passengers.all()}.union({self.car.owner.first_name}))
-
-    def payments(self):
-        from_date = datetime.date(1, 11, 2018)
-        to_date = datetime.date(31, 11, 2018)
-        logger.info("Compute payments from %s to %s", from_date, to_date)
-        
