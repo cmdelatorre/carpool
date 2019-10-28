@@ -40,28 +40,45 @@
         <h1>Reporte del <b>{{ date_from|date:"d/m/Y" }}</b> al <b>{{ date_to|date:"d/m/Y" }}</b></h1>
 
         <div id="content-main">
-
             <ul>
-            {% for item in report %}
+            {% for collector, transactions in payments.items %}
                 <li>
-                    <strong>{{ item.person }}</strong> {{ item.action }} {{ item.from_to }}
-                        <strong>{{ item.other }}</strong>: 💵 <b>${{ item.ammount }}</b>
+                    <strong>{{ collector }}</strong> cobra de la siguiente forma:
+                    <ul>
+                        {% for person, ammount in transactions %}
+                            <li><strong>{{ person }}</strong> le paga 💵 <b>${{ ammount }}</b></li>
+                        {% endfor %}
+                    </ul>
                 </li>
             {% empty %}
-                <li>Estamos hechos parece...</li>
+                <li>Parece que nadie paga...</li>
             {% endfor %}
             </ul>
 
-        <br class="clear">
+            {% if even %}
+            <br class="clear">
+            <h2>Los que salen hechos son: </h2>
+            <ul>
+                {% for t in even %}
+                    <li>
+                        <strong>{{ t.0 }}</strong>
+                    </li>
+                {% endfor %}
+            </ul>
+            {% endif %}
 
-        <h1>Detalle completo</h1>
-        <small>(para checkear)</small>
-        <ul>
-            {% for data in details %}
-                <li>{{ data }}</li>
-            {% endfor %}
+            <br class="clear">
 
-        </ul>
+            <h1>Detalle completo</h1>
+            <small>(para checkear)</small>
+            <ul>
+                {% for data in details %}
+                    <li>{{ data.0 }} viajó con {{ data.1 }} el {{ data.2|date:"d M" }}, paga {{ data.3 }}</li>
+                {% endfor %}
+            </ul>
+
+        </div>
+
     </div>
     <!-- END Content -->
 
