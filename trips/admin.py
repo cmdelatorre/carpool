@@ -9,7 +9,7 @@ from django.contrib.admin import AdminSite
 from django.template.response import TemplateResponse
 
 from trips.models import Car, Trip
-from trips.payments import create_pay_collect_matrix
+from trips.payments import analyze_trips, resolve_collectors_and_payers, assing_payments
 
 from collections import namedtuple
 
@@ -29,36 +29,32 @@ class CarAdmin(admin.ModelAdmin):
 admin_site.register(Car, CarAdmin)
 
 
+def prepare_report_data(queryset):
+    analysis = analyze_trips(queryset)
+    collectors, payers, even = resolve_collectors_and_payers(analysis["balance"], analysis["index"])
+    payments = assing_payments(collectors, payers)
+    fn = lambda u: User.objects.get(pk=u).get_full_name()  # Full name
+    inject_name = lambda t: (fn(t.id), t.ammount)
+
+    return {
+        "details": analysis["details"],
+        "payments": {fn(u): map(inject_name, transactions) for u, transactions in payments.items()},
+        "even": list(map(inject_name, even))
+    }
+
+
 def compute_payments(request, queryset):
-
-    payments, details = create_pay_collect_matrix(queryset)
-
-    from_index = {i: person.get_full_name() for i, person in enumerate(User.objects.all())}
-
-    ReportLine = namedtuple("ReportLine", ("person", "action", "from_to", "ammount", "other"))
-    report = []
-    visited = []
-    for row, u in zip(payments, User.objects.all()):
-        person = u.get_full_name()
-        for i, ammount in enumerate(row):
-            other = from_index[i]
-            if ammount == 0 or (person, other) in visited or (other, person) in visited:
-                continue
-            action, from_to = ammount <= 0 and ("paga", "a") or ("cobra", "de")
-            report.append(ReportLine(person, action, from_to, round(abs(ammount), 2), other))
-            visited.append((person, other))
-
+    report_data = prepare_report_data(queryset)
     ordered = queryset.order_by("date")
+    report_data.update({
+        "date_from": ordered.first().date,
+        "date_to": ordered.last().date,
+    })
 
     return TemplateResponse(
         request,
         'trips/report.html',
-        {
-            "report": report,
-            "details": details,
-            "date_from": ordered.first().date,
-            "date_to": ordered.last().date,
-        }
+        report_data
     )
 
 
