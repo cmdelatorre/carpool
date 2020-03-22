@@ -15,9 +15,11 @@ class RegisterTrip(TemplateView):
         context = super().get_context_data(**kwargs)
         car_owner = get_object_or_404(get_user_model(), username=context["username"])
         d = datetime.now()
+        # GOTO if it's before noon. RETURN otherwise.
+        way = d.hour <= 12 and Trip.GOTO or Trip.RETURN
         context.update({
             "date": d.date(),
-            "way": d.hour <= 12 and Trip.GOTO or Trip.RETURN,
+            "way": Trip.TRIP_WAYS[way],
             "passenger": self.request.user,
             "car_owner": car_owner,
         })

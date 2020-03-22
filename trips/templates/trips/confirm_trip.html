@@ -2,4 +2,15 @@
 {% block title %}Confirmar{% endblock %}
 
 {% block main_content %}
+<p>
+    Hola {{ passenger | title }}, por favor confirma que querés registrarte en este viaje:
+</p>
+<p>
+    <strong>{{ way | upper }}</strong>, el día <i>{{ date }}</i> en el auto de <strong>{{ car_owner | title }}</strong>.
+</p>
+
+<div class="button-container" style="display: flex;justify-content: center">
+    <button class="center">Confirmar</button>
+</div>
+
 {% endblock %}
