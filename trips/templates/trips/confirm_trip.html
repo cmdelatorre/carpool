@@ -3,19 +3,16 @@
 
 {% block main_content %}
 <p>
-    Hola <b>{{ request.user | title }}</b>, por favor confirma que querés registrarte en este viaje:
+    Hola <b>{{ request.user.get_full_name  }}</b>, por favor confirma que querés registrarte en este viaje:
 </p>
 
-<form action="{{ processing_url }}" method="post">
+<form action="{{ processing_url }}" method="post" disabled="true">
     {% csrf_token %}
     {{ form }}
-    <input type="submit" value="Submit">
+    <div>
+        <input type="submit" value="Confirmar">
+    </div>
+
 </form>
-
-{{ request.user }}
-
-<div class="button-container" style="display: flex;justify-content: center">
-    <a class="button" href="">Confirmar</a>
-</div>
 
 {% endblock %}

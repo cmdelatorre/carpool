@@ -2,7 +2,7 @@ import logging
 from decimal import Decimal
 from django.conf import settings
 from django.db import models
-from django.utils.timezone import now, datetime
+from django.utils.timezone import now
 
 
 logger = logging.getLogger(__name__)
@@ -62,4 +62,6 @@ class Trip(models.Model):
 
     def people_names(self):
         """CSV string with the passengers and driver's names"""
-        return ', '.join({p.first_name for p in self.passengers.all()}.union({self.car.owner.first_name}))
+        return ', '.join(
+            {p.first_name for p in self.passengers.all()}.union({self.car.owner.first_name})
+        )

@@ -1,5 +1,7 @@
 from django.contrib.auth import get_user_model
+from django.forms import ModelForm
 from django.http import HttpResponseRedirect
+from trips.models import Trip
 from django.shortcuts import get_object_or_404
 from django.urls import reverse
 from django.utils.timezone import datetime
@@ -7,15 +9,16 @@ from django.views.generic import TemplateView, CreateView, UpdateView
 from django.views.generic.edit import ModelFormMixin
 
 
-from trips.models import Trip
-
-from django.forms import ModelForm
-
 class TripForm(ModelForm):
     class Meta:
         model = Trip
         fields = ['date', 'car', 'way']
 
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        for name in self.fields:
+            self.fields[name].widget.attrs['readonly'] = True
+            self.fields[name].widget.attrs['style'] = "pointer-events: none;"  # Hack de vago
 
 
 class TripRegistrationConfirmation(TemplateView, ModelFormMixin):
@@ -45,10 +48,9 @@ class TripRegistrationConfirmation(TemplateView, ModelFormMixin):
         self.object = trip
 
         context = super().get_context_data(**kwargs)
-        context["processing_url"] = (
-            trip.id is None and reverse("trips:register_new")
-            or reverse("trips:register_existing", args=[trip.id])
-        )
+        register_existing = trip.id and reverse("trips:register_existing", args=[trip.id])
+        register_new = reverse("trips:register_new")
+        context["processing_url"] = register_existing or register_new
         return context
 
 
