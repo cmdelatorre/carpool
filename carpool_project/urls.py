@@ -19,5 +19,5 @@ from trips.admin import admin_site
 
 urlpatterns = [
     path("admin/", admin_site.urls),
-    path('trips/', include('trips.urls')),
+    path('trips/', include('trips.urls', namespace="trips")),
 ]

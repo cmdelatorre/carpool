@@ -3,11 +3,16 @@
 
 {% block main_content %}
 <p>
-    Hola {{ passenger | title }}, por favor confirma que querés registrarte en este viaje:
+    Hola <b>{{ request.user | title }}</b>, por favor confirma que querés registrarte en este viaje:
 </p>
-<p>
-    <strong>{{ way | upper }}</strong>, el día <i>{{ date }}</i> en el auto de <strong>{{ car_owner | title }}</strong>.
-</p>
+
+<form action="{{ processing_url }}" method="post">
+    {% csrf_token %}
+    {{ form }}
+    <input type="submit" value="Submit">
+</form>
+
+{{ request.user }}
 
 <div class="button-container" style="display: flex;justify-content: center">
     <a class="button" href="">Confirmar</a>

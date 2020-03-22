@@ -39,12 +39,15 @@ class Trip(models.Model):
     )  # Up to $99.999,99
     notes = models.CharField(max_length=DESCRIPTION_MAX, blank=True)
 
+    class Meta:
+        unique_together = ["date", "car", "way"]
+
     def __str__(self):
         return f"{self.date} {Trip.TRIP_WAYS[self.way]} en el {self.car}"
 
     def set_price_per_passenger(self):
         """Compute the price per passenger of the trip and set on the instance.
-        
+
         Triggers a self.save()
 
         """
