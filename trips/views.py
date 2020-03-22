@@ -7,7 +7,7 @@ from django.views.generic import TemplateView
 from trips.models import Trip
 
 
-class RegisterTrip(TemplateView):
+class TripRegistrationConfirmation(TemplateView):
     http_method_names = ['get']
     template_name = "trips/confirm_trip.html"
 
@@ -24,5 +24,3 @@ class RegisterTrip(TemplateView):
             "car_owner": car_owner,
         })
         return context
-
-    # def get(self, request, username=None):
