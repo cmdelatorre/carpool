@@ -2,7 +2,7 @@ import logging
 from decimal import Decimal
 from django.conf import settings
 from django.db import models
-from django.utils.timezone import now, datetime
+from django.utils.timezone import now
 
 
 logger = logging.getLogger(__name__)
@@ -39,12 +39,15 @@ class Trip(models.Model):
     )  # Up to $99.999,99
     notes = models.CharField(max_length=DESCRIPTION_MAX, blank=True)
 
+    class Meta:
+        unique_together = ["date", "car", "way"]
+
     def __str__(self):
         return f"{self.date} {Trip.TRIP_WAYS[self.way]} en el {self.car}"
 
     def set_price_per_passenger(self):
         """Compute the price per passenger of the trip and set on the instance.
-        
+
         Triggers a self.save()
 
         """
@@ -59,4 +62,6 @@ class Trip(models.Model):
 
     def people_names(self):
         """CSV string with the passengers and driver's names"""
-        return ', '.join({p.first_name for p in self.passengers.all()}.union({self.car.owner.first_name}))
+        return ', '.join(
+            {p.first_name for p in self.passengers.all()}.union({self.car.owner.first_name})
+        )
