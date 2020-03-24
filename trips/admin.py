@@ -72,6 +72,8 @@ class ReportAdmin(admin.ModelAdmin):
 
 admin_site.register(Report, ReportAdmin)
 
+from django.contrib import messages
+from django.http import HttpResponseRedirect
 
 class TripAdmin(admin.ModelAdmin):
     date_hierarchy = "date"
@@ -81,7 +83,7 @@ class TripAdmin(admin.ModelAdmin):
     )
     list_filter = ("car", "way")
     ordering = ("-date", "way")
-    actions = ("pay", )
+    actions = ("create_report", )
 
     def included_in_report(self, obj):
         if obj.report is not None:
@@ -90,6 +92,13 @@ class TripAdmin(admin.ModelAdmin):
             return None
     included_in_report.allow_tags = True
 
+    def create_report(self, request, queryset):
+        report = Report.objects.create(creator=request.user)
+        queryset.update(report=report)
+        self.message_user(request, "New report created: %s" % str(report))
+        return HttpResponseRedirect(reverse("trips:report_payments", args=(report.id,)))
+
+    create_report.short_description = "Create a report with the selected trips"
 
 admin_site.register(Trip, TripAdmin)
 
