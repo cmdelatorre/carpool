@@ -1,7 +1,6 @@
 import numpy as np
 import logging
-from collections import defaultdict, namedtuple
-from decimal import Decimal
+from collections import namedtuple
 from django.contrib.auth import get_user_model
 
 
@@ -17,8 +16,8 @@ def analyze_trips(queryset):
 
     C_i = The sum of row i, indicates how much "i" should collect.
     P_j = The sum of col j, indicates how much "j" should pay.
-    T_i = (C_i - P_i) is the difference, telling if "i" ends up paying (negative result) or collecting
-          (positive result).
+    T_i = (C_i - P_i) is the difference, telling if "i" ends up paying (negative result) or
+          collecting (positive result).
 
     Returns a dict with:
         "index": dict matching matrix row-indices with User IDs
@@ -40,7 +39,8 @@ def analyze_trips(queryset):
                 (passenger.get_full_name(),
                  trip.car.owner.get_full_name(),
                  trip.date,
-                 float(trip.price_per_passenger))
+                 float(trip.price_per_passenger),
+                 trip.get_absolute_url())
             )
     return {
         "index": {i: u for u, i in index.items()},  # Reverse the current index
@@ -63,7 +63,6 @@ def resolve_collectors_and_payers(balance, index):
       - Users who are even (ammount is 0 for all of them)
     """
 
-    N = balance.shape[0]
     collectors, payers, even = [], [], []
     for idx, ammount in enumerate(balance.sum(axis=1)):
         if ammount > 0:
@@ -92,7 +91,7 @@ def assing_payments(collectors, payers):
             if accum <= ammount_to_collect:
                 # El deudor d le paga toda su deuda a c. c sigue cobrando
                 payments.append(debt)
-            else: # este deudor cubre lo que le falta a c, con excedente
+            else:  # este deudor cubre lo que le falta a c, con excedente
                 excess = accum - ammount_to_collect
                 to_pay = debt.ammount - excess  # Cubre lo que falta para terminar la deuda
                 payments.append(
@@ -112,4 +111,22 @@ def assing_payments(collectors, payers):
 def aux(p):
     f = lambda t: "{} pays {}".format(User.objects.get(pk=t.id).get_full_name(), t.ammount)
     for u, payments in p.items():
-        print("{} collects: {}".format(User.objects.get(pk=u).get_full_name(), ", ".join(map(f, payments))))
+        print(
+            "{} collects: {}".format(
+                User.objects.get(pk=u).get_full_name(), ", ".join(map(f, payments))
+            )
+        )
+
+
+def prepare_report_data(queryset):
+    analysis = analyze_trips(queryset)
+    collectors, payers, even = resolve_collectors_and_payers(analysis["balance"], analysis["index"])
+    payments = assing_payments(collectors, payers)
+    fn = lambda u: User.objects.get(pk=u).get_full_name()  # Full name
+    inject_name = lambda t: (fn(t.id), t.ammount)
+
+    return {
+        "details": analysis["details"],
+        "payments": {fn(u): map(inject_name, transactions) for u, transactions in payments.items()},
+        "even": list(map(inject_name, even))
+    }

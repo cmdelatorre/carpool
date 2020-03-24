@@ -1,90 +1,52 @@
+{% extends "trips/base.html" %}
+{% block title %}Confirmar{% endblock %}
 
-<!DOCTYPE html>
+{% block last_breadcrumb %}
+<a href="/admin/trips/report/">Reports</a> &rsaquo; Payments for report
+{% endblock %}
 
-<html lang="en-us" >
-<head>
-    <title>Reporte | Carpool administration</title>
-    <link rel="stylesheet" type="text/css" href="/static/admin/css/base.css">
-    <link rel="stylesheet" type="text/css" href="/static/admin/css/changelists.css">
-    <meta name="viewport" content="user-scalable=no, width=device-width, initial-scale=1.0, maximum-scale=1.0">
-    <link rel="stylesheet" type="text/css" href="/static/admin/css/responsive.css">
-    <meta name="robots" content="NONE,NOARCHIVE">
-</head>
+{% block main_content %}
 
+<h1>Reporte del <b>{{ date_from|date:"d/m/Y" }}</b> al <b>{{ date_to|date:"d/m/Y" }}</b></h1>
 
-<body class=" app-trips model-trip change-list"
-  data-admin-utc-offset="0">
-
-<!-- Container -->
-<div id="container">
-
-
-    <!-- Header -->
-    <div id="header">
-        <div id="branding">
-            <h1 id="site-name"><a href="/admin/">Los pibe&#39; del Norte - Carpooling</a></h1>
-        </div>
-    </div>
-    <!-- END Header -->
-
-<div class="breadcrumbs">
-<a href="/admin/">Home</a>
-&rsaquo; <a href="/admin/trips/">Trips</a>
-&rsaquo; Trips
-</div>
-
-
-    <!-- Content -->
-    <div id="content" class="flex">
-
-        <h1>Reporte del <b>{{ date_from|date:"d/m/Y" }}</b> al <b>{{ date_to|date:"d/m/Y" }}</b></h1>
-
-        <div id="content-main">
-            <ul>
-            {% for collector, transactions in payments.items %}
-                <li>
-                    <strong>{{ collector }}</strong> cobra de la siguiente forma:
-                    <ul>
-                        {% for person, ammount in transactions %}
-                            <li><strong>{{ person }}</strong> le paga 💵 <b>${{ ammount }}</b></li>
-                        {% endfor %}
-                    </ul>
-                </li>
-            {% empty %}
-                <li>Parece que nadie paga...</li>
+<ul>
+{% for collector, transactions in payments.items %}
+    <li>
+        <strong>{{ collector }}</strong> cobra de la siguiente forma:
+        <ul>
+            {% for person, ammount in transactions %}
+                <li><strong>{{ person }}</strong> le paga 💵 <b>${{ ammount }}</b></li>
             {% endfor %}
-            </ul>
+        </ul>
+    </li>
+{% empty %}
+    <li>Parece que nadie paga...</li>
+{% endfor %}
+</ul>
 
-            {% if even %}
-            <br class="clear">
-            <h2>Los que salen hechos son: </h2>
-            <ul>
-                {% for t in even %}
-                    <li>
-                        <strong>{{ t.0 }}</strong>
-                    </li>
-                {% endfor %}
-            </ul>
-            {% endif %}
+{% if even %}
+<br class="clear">
+<h2>Los que salen hechos son: </h2>
+<ul>
+    {% for t in even %}
+        <li>
+            <strong>{{ t.0 }}</strong>
+        </li>
+    {% endfor %}
+</ul>
+{% endif %}
 
-            <br class="clear">
+<br class="clear">
 
-            <h1>Detalle completo</h1>
-            <small>(para checkear)</small>
-            <ul>
-                {% for data in details %}
-                    <li>{{ data.0 }} viajó con {{ data.1 }} el {{ data.2|date:"d M" }}, paga {{ data.3 }}</li>
-                {% endfor %}
-            </ul>
+<h1>Detalle completo</h1>
+<small>(para checkear)</small>
+<ul>
+    {% for data in details %}
+        <li>
+            {{ data.0 }} viajó con {{ data.1 }} el {{ data.2|date:"d M" }}, paga {{ data.3 }}
+            <a href="{{ data.4 }}">(details)</a>
+        </li>
+    {% endfor %}
+</ul>
 
-        </div>
-
-    </div>
-    <!-- END Content -->
-
-    <div id="footer"></div>
-</div>
-<!-- END Container -->
-
-</body>
-</html>
+{% endblock %}
