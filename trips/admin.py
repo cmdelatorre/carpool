@@ -75,13 +75,46 @@ admin_site.register(Report, ReportAdmin)
 from django.contrib import messages
 from django.http import HttpResponseRedirect
 
+
+class FilterTripsIfTheyHaveAReport(admin.SimpleListFilter):
+    # Human-readable title which will be displayed in the
+    # right admin sidebar just above the filter options.
+    title = 'is reported?'
+
+    # Parameter for the filter that will be used in the URL query.
+    parameter_name = 'already_reported'
+
+    def lookups(self, request, model_admin):
+        """
+        Returns a list of tuples. The first element in each
+        tuple is the coded value for the option that will
+        appear in the URL query. The second element is the
+        human-readable name for the option that will appear
+        in the right sidebar.
+        """
+        return (
+            ("yes", 'Alredy reported'),
+            ("no", 'Un-reported'),
+        )
+
+    def queryset(self, request, queryset):
+        """
+        Returns the filtered queryset based on the value
+        provided in the query string and retrievable via
+        `self.value()`.
+        """
+        # Compare the requested value (either True or)
+        # to decide how to filter the queryset.
+        if self.value() is not None:
+            return queryset.filter(report__isnull=(self.value()=="no"))
+
 class TripAdmin(admin.ModelAdmin):
     date_hierarchy = "date"
     readonly_fields = ("price_per_passenger",)
     list_display = (
         "date", "way", "car", "price_per_passenger", "people_names", "included_in_report", "notes"
     )
-    list_filter = ("car", "way")
+    list_filter = ("car", "way", FilterTripsIfTheyHaveAReport)
     ordering = ("-date", "way")
     actions = ("create_report", )
 
@@ -93,6 +126,14 @@ class TripAdmin(admin.ModelAdmin):
     included_in_report.allow_tags = True
 
     def create_report(self, request, queryset):
+        already_on_report = queryset.filter(report__isnull=False)
+        if already_on_report.exists():
+            self.message_user(
+                request,
+                "These trips are already on a report: %s" % str(already_on_report),
+                level=messages.WARNING)
+            return
+
         report = Report.objects.create(creator=request.user)
         queryset.update(report=report)
         self.message_user(request, "New report created: %s" % str(report))

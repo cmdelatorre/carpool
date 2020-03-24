@@ -58,6 +58,11 @@ class Trip(models.Model):
     def __str__(self):
         return f"{self.date} {Trip.TRIP_WAYS[self.way]} en el {self.car}"
 
+    def save(self, *args, **kwargs):
+        """Make sure the report is not changed (once it is set)."""
+        print("saving", self)
+        super().save(*args, **kwargs)  # Call the "real" save() method.
+
     def set_price_per_passenger(self):
         """Compute the price per passenger of the trip and set on the instance.
 
