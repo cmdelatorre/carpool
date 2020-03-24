@@ -30,6 +30,8 @@ class Car(models.Model):
         return f"Auto de {self.owner.username.capitalize()}"
 
 
+from django.core.exceptions import FieldError
+
 class Trip(models.Model):
     GOTO = "go_to"
     RETURN = "return"
@@ -60,8 +62,14 @@ class Trip(models.Model):
 
     def save(self, *args, **kwargs):
         """Make sure the report is not changed (once it is set)."""
-        print("saving", self)
-        super().save(*args, **kwargs)  # Call the "real" save() method.
+        if self.pk and self.report:
+            report_id = Trip.objects.values('report__id').get(pk=self.pk)['report__id']
+            print(report_id)
+            if report_id is not None and report_id != self.report.id:
+                raise ValueError("Can't change the report of a trip, once set! "
+                                 "Delete all the Report if needed.")
+
+        return super().save(*args, **kwargs)  # Call the "real" save() method.
 
     def set_price_per_passenger(self):
         """Compute the price per passenger of the trip and set on the instance.
