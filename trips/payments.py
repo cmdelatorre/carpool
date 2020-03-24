@@ -113,3 +113,17 @@ def aux(p):
     f = lambda t: "{} pays {}".format(User.objects.get(pk=t.id).get_full_name(), t.ammount)
     for u, payments in p.items():
         print("{} collects: {}".format(User.objects.get(pk=u).get_full_name(), ", ".join(map(f, payments))))
+
+
+def prepare_report_data(queryset):
+    analysis = analyze_trips(queryset)
+    collectors, payers, even = resolve_collectors_and_payers(analysis["balance"], analysis["index"])
+    payments = assing_payments(collectors, payers)
+    fn = lambda u: User.objects.get(pk=u).get_full_name()  # Full name
+    inject_name = lambda t: (fn(t.id), t.ammount)
+
+    return {
+        "details": analysis["details"],
+        "payments": {fn(u): map(inject_name, transactions) for u, transactions in payments.items()},
+        "even": list(map(inject_name, even))
+    }

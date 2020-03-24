@@ -2,7 +2,9 @@ import logging
 from decimal import Decimal
 from django.conf import settings
 from django.db import models
+from django.db.models.constraints import UniqueConstraint
 from django.utils.timezone import now
+from django.urls import reverse
 
 
 logger = logging.getLogger(__name__)
@@ -38,9 +40,18 @@ class Trip(models.Model):
         max_digits=5, decimal_places=2, null=True
     )  # Up to $99.999,99
     notes = models.CharField(max_length=DESCRIPTION_MAX, blank=True)
+    report = models.ForeignKey(
+        "trips.Report",
+        null=True,
+        blank=True,
+        on_delete=models.SET_NULL,
+        related_name="trips"
+    )
 
     class Meta:
-        unique_together = ["date", "car", "way"]
+        constraints = [
+            UniqueConstraint(fields=["date", "car", "way"], name='unique_daily_trip_per_way_car'),
+        ]
 
     def __str__(self):
         return f"{self.date} {Trip.TRIP_WAYS[self.way]} en el {self.car}"
@@ -65,3 +76,31 @@ class Trip(models.Model):
         return ', '.join(
             {p.first_name for p in self.passengers.all()}.union({self.car.owner.first_name})
         )
+
+
+
+from trips.payments import prepare_report_data
+
+
+class Report(models.Model):
+    creator = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE,
+                                related_name="reports")
+    created_time = models.DateTimeField(auto_now=False, auto_now_add=True)
+
+    def get_absolute_url(self):
+        return reverse('admin:trips_report_change', args=(self.id,))
+
+    def __str__(self):
+        return f"Report ({self.id or ''}) of {str(self.created_time.date())} by {self.creator}"
+
+    @property
+    def payments_report(self):
+        report_data = None
+        if self.trips.exists():
+            report_data = prepare_report_data(self.trips.all())
+            ordered = self.trips.order_by("date")
+            report_data.update({
+                "date_from": ordered.first().date,
+                "date_to": ordered.last().date,
+            })
+        return report_data
