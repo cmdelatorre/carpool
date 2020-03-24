@@ -57,6 +57,9 @@ class Trip(models.Model):
             UniqueConstraint(fields=["date", "car", "way"], name='unique_daily_trip_per_way_car'),
         ]
 
+    def get_absolute_url(self):
+        return reverse('admin:trips_trip_change', args=(self.id,))
+
     def __str__(self):
         return f"{self.date} {Trip.TRIP_WAYS[self.way]} en el {self.car}"
 

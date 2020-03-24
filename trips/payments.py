@@ -39,7 +39,8 @@ def analyze_trips(queryset):
                 (passenger.get_full_name(),
                  trip.car.owner.get_full_name(),
                  trip.date,
-                 float(trip.price_per_passenger))
+                 float(trip.price_per_passenger),
+                 trip.get_absolute_url())
             )
     return {
         "index": {i: u for u, i in index.items()},  # Reverse the current index
