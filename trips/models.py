@@ -6,6 +6,8 @@ from django.db.models.constraints import UniqueConstraint
 from django.utils.timezone import now
 from django.urls import reverse
 
+from trips.payments import prepare_report_data
+
 
 logger = logging.getLogger(__name__)
 
@@ -76,10 +78,6 @@ class Trip(models.Model):
         return ', '.join(
             {p.first_name for p in self.passengers.all()}.union({self.car.owner.first_name})
         )
-
-
-
-from trips.payments import prepare_report_data
 
 
 class Report(models.Model):

@@ -1,6 +1,7 @@
 from django.contrib.auth.decorators import login_required
 from django.urls import path
-from trips.views import TripRegistrationConfirmation, RegisterNewTrip, RegisterInExistingTrip, ReportPayments
+from trips.views import (TripRegistrationConfirmation, RegisterNewTrip, RegisterInExistingTrip,
+                         ReportPayments)
 
 app_name = 'trips'
 urlpatterns = [
