@@ -23,7 +23,8 @@ class Car(models.Model):
         related_name="cars",
     )
     price_per_trip = models.DecimalField(
-        max_digits=5, decimal_places=2, default=0, blank=True
+        max_digits=5, decimal_places=2, default=0, blank=True,
+        help_text="Precio sugerido: 2 pasajes de Fonobus <a target='_blank' href='https://shop.ticketonline.com.ar/trips/oneway/type/1/f/352/t/559/d/2020-03-28/iR/1/c/2020-03-28/p/1/l/es'>(ver acá)</a>."
     )  # Up to $99.999,99
 
     def __str__(self):
